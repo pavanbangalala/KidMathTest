@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { View, StatusBar, Platform } from 'react-native';
+import { View, StatusBar, Platform, Text, BackHandler } from 'react-native';
 import Styles from './Styles';
 import { InfoContainer } from '../../Components/InfoContainer';
 import { Option } from '../../Components/Option';
 import { Button } from '../../Components/Button';
 import { Question } from '../../Components/Qusetion';
+import RNExitApp from 'react-native-exit-app';
 let Sound = require('react-native-sound');
 
 const operators = ['+', '-', '*', '/', '%'];
@@ -15,6 +16,7 @@ let wrongAnswerAudio = require('../../assets/wrong_answer.mp3');
 class HomeScreen extends Component {
 	constructor() {
 		super();
+		console.log('test', 'constructor');
 		this.state = {
 			leftOperand: -1,
 			rightOperand: -1,
@@ -27,6 +29,7 @@ class HomeScreen extends Component {
 			currentScore: 0,
 			count: 0,
 			interval: 0,
+			reset: false,
 		};
 		this.refreshQuestion = this.refreshQuestion.bind(this);
 		this.verifyUserSelection = this.verifyUserSelection.bind(this);
@@ -126,8 +129,8 @@ class HomeScreen extends Component {
 	};
 
 	resetQuestion = isCorrect => {
-		console.log('resetQuestion', ' count : ' + this.state.count);
-		console.log('resetQuestion', ' maxScore : ' + this.state.maxScore);
+		console.log('test resetQuestion', ' count : ' + this.state.count);
+		console.log('test resetQuestion', ' maxScore : ' + this.state.maxScore);
 		if (this.state.count == this.state.maxScore - 1) {
 			clearInterval(this.counter);
 			this.navigateToResultsScreen();
@@ -149,11 +152,13 @@ class HomeScreen extends Component {
 				currentScore: score,
 				count: this.state.count + 1,
 				interval: 0,
+				reset: false,
 			});
 		}
 	};
 
 	refreshQuestion = (initial = false) => {
+		clearInterval(this.counter);
 		console.log('refreshQuestion', ' count : ' + this.state.count);
 		console.log('refreshQuestion', ' maxScore : ' + this.state.maxScore);
 		if (this.state.count == this.state.maxScore - 1) {
@@ -169,9 +174,50 @@ class HomeScreen extends Component {
 	};
 
 	componentDidMount() {
-		this.refreshQuestion(true);
+		console.log('test', 'componentDidMount');
+
+		BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
+		this.setCurrentQuestion(this.getRandomLimit());
 	}
 
+	componentWillMount() {
+		BackHandler.removeEventListener('hardwareBackPress', this.handleBackPress);
+	}
+
+	componentDidUpdate() {
+		let reset = this.props.navigation.getParam('reset');
+		if (reset == true && this.state.reset !== false) {
+			console.log('test', 'componentDidUpdate');
+			this.setState(
+				{
+					leftOperand: -1,
+					rightOperand: -1,
+					operator: '',
+					answers: [],
+					resultIndex: -1,
+					result: -1,
+					selectionIndex: -1,
+					maxScore: 3,
+					currentScore: 0,
+					count: 0,
+					interval: 0,
+					reset: false,
+				},
+				() => {
+					this.setCurrentQuestion(this.getRandomLimit());
+				}
+			);
+		}
+	}
+
+	componentWillReceiveProps(nextProp) {
+		console.log('test', 'Component Will receive props');
+	}
+
+	handleBackPress = () => {
+		RNExitApp.exitApp();
+		return true;
+	};
 	showResultResponse = (isCorrect, index) => {
 		switch (index) {
 			case 0:
@@ -189,6 +235,7 @@ class HomeScreen extends Component {
 	};
 
 	verifyUserSelection = index => {
+		clearInterval(this.counter);
 		setTimeout(() => {
 			const userAnswer = this.state.answers[index];
 			this.setState({ selectionIndex: index });
@@ -223,7 +270,8 @@ class HomeScreen extends Component {
 	};
 
 	navigateToResultsScreen = score => {
-		this.props.navigation.push('ResultScreen', { score: this.state.currentScore });
+		this.setState({ reset: true });
+		this.props.navigation.navigate('ResultScreen', { score: this.state.currentScore });
 	};
 
 	componentWillUnmount() {
@@ -246,6 +294,9 @@ class HomeScreen extends Component {
 		return (
 			<View style={Styles.container}>
 				{Platform.OS == 'ios' ? <StatusBar barStyle="light-content" translucent={false} /> : null}
+				<View style={Styles.headerStyle}>
+					<Text style={Styles.headerTitleStyle}>Math Test</Text>
+				</View>
 				<View style={{ flexDirection: 'row', height: 80, justifyContent: 'center', alignItems: 'center' }}>
 					<InfoContainer
 						text={this.state.interval}
@@ -322,7 +373,7 @@ class HomeScreen extends Component {
 						/>
 					</View>
 				</View>
-				<Button onPress={this.navigateToResultsScreen} />
+				<Button onPress={this.refreshQuestion} />
 			</View>
 		);
 	}

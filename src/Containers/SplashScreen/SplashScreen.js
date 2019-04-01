@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Image, StatusBar } from 'react-native';
 
 class SplashScreen extends Component {
 	componentDidMount() {
@@ -10,8 +10,12 @@ class SplashScreen extends Component {
 
 	render() {
 		return (
-			<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-				<Text>SplashScreen</Text>
+			<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
+				<StatusBar barStyle="light-content" translucent={false} />
+				<View style={{ justifyContent: 'center', alignItems: 'center' }}>
+					<Image source={require('../../assets/splash.png')} size={100} />
+					<Text style={{ fontSize: 40, fontWeight: '700', color: '#800080' }}>MATH QUIZ</Text>
+				</View>
 			</View>
 		);
 	}

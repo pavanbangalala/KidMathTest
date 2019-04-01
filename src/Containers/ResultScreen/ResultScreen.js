@@ -74,7 +74,7 @@ class ResultScreen extends Component {
 						>
 							<TouchableOpacity
 								style={{ marginVertical: 16 }}
-								onPress={() => this.props.navigation.navigate('HomeScreen')}
+								onPress={() => this.props.navigation.navigate('HomeScreen', { reset: true })}
 							>
 								<Text
 									style={{

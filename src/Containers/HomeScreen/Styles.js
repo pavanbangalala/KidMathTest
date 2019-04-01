@@ -19,4 +19,16 @@ export default (Styles = StyleSheet.create({
 		height: GRIDWIDTH,
 		width: GRIDWIDTH,
 	},
+	headerStyle: {
+		height: 70,
+		paddingTop: 20,
+		justifyContent: 'center',
+		alignItems: 'center',
+		backgroundColor: '#000',
+	},
+	headerTitleStyle: {
+		color: '#fff',
+		fontSize: 32,
+		fontWeight: 'bold',
+	},
 }));
